@@ -19,6 +19,9 @@ setup_file = "setup.tcl"
 design = "ariane"
 macro_lefs = ["./lefs/fakeram45_256x16.lef"]
 
+
+
+"""
 ##############################################
 ### Call Gridding Function
 ##############################################
@@ -36,6 +39,11 @@ gridding = GriddingLefDefInterface(gridding_src_dir, design, setup_file, toleran
                                    max_rows_times_cols)
 num_rows = gridding.GetNumRows()
 num_cols = gridding.GetNumCols()
+"""
+
+num_rows = 19
+num_cols = 19
+
 
 ##############################################
 ### Call Grouping Function
@@ -59,13 +67,20 @@ os.system(cmd)
 
 fixed_file = grouping_rpt_dir + "/" + design + ".fix.old"
 
+exit()
+
+
 ##############################################
 ### Call Clustering Function
 ##############################################
 clustering_src_dir = '../Clustering/src'
-chip_width = gridding.GetChipWidth()
-chip_height = gridding.GetChipHeight()
-num_std_cells = gridding.GetNumStdCells()
+#chip_width = gridding.GetChipWidth()
+#chip_height = gridding.GetChipHeight()
+#num_std_cells = gridding.GetNumStdCells()
+chip_width = 1599.99
+chip_height = 1600.06
+num_std_cells = 87452
+grid_width = chip_width / num_cols
 Nparts = 500
 
 # Based on the description of circuit training, [see line 180 at grouper.py]
@@ -80,10 +95,13 @@ print("[INFO] max_num_vertices : ", max_num_vertices)
 
 
 clustering = Clustering(design, clustering_src_dir, fixed_file, step_threshold, distance,
-           max_num_vertices, global_net_threshold, Nparts, setup_file, Replace)
+             grid_width, max_num_vertices, global_net_threshold, Nparts, setup_file, Replace)
 
 cluster_def = "./results/OpenROAD/clustered_netlist.def"
 cluster_lef = "./results/OpenROAD/clusters.lef"
+
+
+exit()
 
 ######################################################################
 ### Convert the clustered netlist to the Protocol Buffer Format
