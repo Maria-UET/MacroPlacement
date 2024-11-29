@@ -3,6 +3,7 @@ from matplotlib.patches import Rectangle
 from absl import app
 from absl import flags
 from typing import Sequence, Tuple
+import re
 
 from circuit_training.environment import plc_client
 
@@ -49,10 +50,28 @@ def _get_final_canvas_dims(plc: plc_client.PlacementCost) -> Tuple[float, float,
         with open(FLAGS.init_file) as f:
             lines = f.readlines()
         
-        cols= int(lines[4].split(':')[1].split(' ')[1])
-        rows = int(lines[4].split(':')[2].split(' ')[1])
-        width = float(lines[5].split(':')[1].split(' ')[1])
-        height = float(lines[5].split(':')[2].split(' ')[1])
+        patternWH = r'#\s+Width\b.*\bHeight\b.*'
+        patternCR = r'#\s+Columns\b.*\bRows\b.*'
+        numWH = None
+        numCR = None
+        for line_num, line in enumerate(lines):
+            if (re.match(patternWH, line)):
+                numWH = line_num
+            if (re.match(patternCR, line)):
+                numCR = line_num
+            if numCR is not None and numWH is not None:
+                break
+        if numCR is None:
+            print("We can't find the Columns and Rows definition in the initial file")
+            exit()
+        if numWH is None:
+            print("We can't find the Width and Height definition in the initial file")
+            exit()
+
+        cols= int(lines[numCR].split(':')[1].split(' ')[1])
+        rows = int(lines[numCR].split(':')[2].split(' ')[1])
+        width = float(lines[numWH].split(':')[1].split(' ')[1])
+        height = float(lines[numWH].split(':')[2].split(' ')[1])
         return (width, height, cols, rows)
 
 
